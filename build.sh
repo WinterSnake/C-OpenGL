@@ -1,1 +1,1 @@
-gcc -Wall -Wextra -Wpedantic -o ./.build/opengl src/main.c
+gcc -Wall -Wextra -Wpedantic -lglfw -o ./.build/opengl src/main.c
