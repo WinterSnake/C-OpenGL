@@ -1,9 +1,11 @@
 /*
 	OpenGL Context Experiments
+	- Loader Generated from GLAD: https://glad.dav1d.de/
 
 	Written By: Ryan Smith
 */
 #include <stdio.h>
+#include "glad/glad.h"
 #include "GLFW/glfw3.h"
 
 #define WIDTH 1920
@@ -22,6 +24,14 @@ int main(int argc, char** argv)
 	}
 
 	// GLFW: Create Window
+	glfwWindowHint(GLFW_RESIZABLE, GLFW_TRUE);
+	glfwWindowHint(GLFW_CLIENT_API, GLFW_OPENGL_API);
+	glfwWindowHint(GLFW_CONTEXT_CREATION_API, GLFW_NATIVE_CONTEXT_API);
+	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
+	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 5);
+	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+	glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GLFW_TRUE);
+
 	GLFWwindow* window = glfwCreateWindow(WIDTH, HEIGHT, "OpenGL", NULL, NULL);
 	if (!window)
 	{
@@ -29,6 +39,10 @@ int main(int argc, char** argv)
 		glfwTerminate();
 		return 1;
 	}
+
+	// GLFW: OpenGL
+	glfwMakeContextCurrent(window);
+	gladLoadGLLoader((GLADloadproc)glfwGetProcAddress);
 
 	// GLFW: Loop
 	while (!glfwWindowShouldClose(window))
@@ -39,6 +53,7 @@ int main(int argc, char** argv)
 		if (escapeKeyState == GLFW_PRESS)
 			glfwSetWindowShouldClose(window, GLFW_TRUE);
 		/* Rendering */
+		glClear(GL_COLOR_BUFFER_BIT);
 		glfwSwapBuffers(window);
 	}
 
