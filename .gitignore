@@ -1,0 +1,5 @@
+# C/C++: Build
+.build/
+
+# Editor: Vim
+.tmux-session
