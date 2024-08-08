@@ -11,6 +11,8 @@
 #define WIDTH 1920
 #define HEIGHT 1080
 
+#include "shader.h"
+
 const char* vertexShaderSource = "#version 330 core\n"
 "layout (location = 0) in vec3 aPos;\n"
 "void main()\n"
@@ -59,22 +61,9 @@ int main(int argc, char** argv)
 	gladLoadGLLoader((GLADloadproc)glfwGetProcAddress);
 
 	// OpenGL: Shader
-	GLuint vertexShader = glCreateShader(GL_VERTEX_SHADER);
-	glShaderSource(vertexShader, 1, &vertexShaderSource, NULL);
-	glCompileShader(vertexShader);
+	struct Shader triangleShader = CreateShader(vertexShaderSource, fragmentShaderSource);
+	printf("Created new shader with Id: %u\n", triangleShader.Id);
 
-	GLuint fragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
-	glShaderSource(fragmentShader, 1, &fragmentShaderSource, NULL);
-	glCompileShader(fragmentShader);
-
-	GLuint shaderProgram = glCreateProgram();
-	glAttachShader(shaderProgram, vertexShader);
-	glAttachShader(shaderProgram, fragmentShader);
-	glLinkProgram(shaderProgram);
-
-	// OpenGL: Shader Cleanup
-	glDeleteShader(vertexShader);
-	glDeleteShader(fragmentShader);
 
 	// OpenGL: Buffers
 	GLfloat vertices[] =
@@ -104,7 +93,7 @@ int main(int argc, char** argv)
 		glClearColor(0.07f, 0.13f, 0.17f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT);
 		// Triangle
-		glUseProgram(shaderProgram);
+		StartShader(triangleShader);
 		glBindVertexArray(VAO);
 		glDrawArrays(GL_TRIANGLES, 0, 3);
 		// Swap Buffer
@@ -119,7 +108,7 @@ int main(int argc, char** argv)
 	// OpenGL: Cleanup
 	glDeleteVertexArrays(1, &VAO);
 	glDeleteBuffers(1, &VBO);
-	glDeleteProgram(shaderProgram);
+	DeleteShader(triangleShader);
 
 	// GLFW: Close
 	glfwDestroyWindow(window);

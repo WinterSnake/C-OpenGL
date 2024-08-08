@@ -6,4 +6,4 @@ depgl = dependency('opengl')
 depglfw = dependency('glfw3')
 
 # -Output
-executable('opengl', sources: ['./src/main.c', './src/glad.c'], include_directories: './include', dependencies: [depgl, depglfw])
+executable('opengl', sources: ['./src/main.c', './src/glad.c', './src/shader.c'], include_directories: './include', dependencies: [depgl, depglfw])
