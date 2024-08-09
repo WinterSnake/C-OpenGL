@@ -11,22 +11,22 @@
 #define WIDTH 1920
 #define HEIGHT 1080
 
-#include "shader.h"
+#include "opengl.h"
 
-const char* vertexShaderSource = "#version 330 core\n"
+const char* vertexShaderSource = "#version 450 core\n"
 "layout (location = 0) in vec3 aPos;\n"
 "void main()\n"
 "{\n"
 "   gl_Position = vec4(aPos.x, aPos.y, aPos.z, 1.0);\n"
 "}\0";
-const char* fragmentShaderSource = "#version 330 core\n"
+const char* fragmentShaderSource = "#version 450 core\n"
 "out vec4 FragColor;\n"
 "void main()\n"
 "{\n"
 "   FragColor = vec4(0.8f, 0.3f, 0.02f, 1.0f);\n"
 "}\n\0";
 
-int main(int argc, char** argv)
+int main(int argc, const char** argv)
 {
 	(void)argc;
 	(void)argv;
@@ -60,6 +60,8 @@ int main(int argc, char** argv)
 	glfwMakeContextCurrent(window);
 	gladLoadGLLoader((GLADloadproc)glfwGetProcAddress);
 
+	printf("%s\n", glGetString(GL_VERSION));
+
 	// OpenGL: Shader
 	struct Shader triangleShader = CreateShader(vertexShaderSource, fragmentShaderSource);
 	printf("Created new shader with Id: %u\n", triangleShader.Id);
@@ -85,12 +87,17 @@ int main(int argc, char** argv)
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
 	glBindVertexArray(0);
 
+	float clearColorArray[4];
+	struct Color clearColor = { .R = 0x17, .G = 0x26, .B = 0x4A, .A = 0xFF };
+	NormalizeColor(clearColor, clearColorArray);
+	printf("%f, %f, %f, %f\n", clearColorArray[0], clearColorArray[1], clearColorArray[2], clearColorArray[3]);
+
 	// GLFW: Loop
 	while (!glfwWindowShouldClose(window))
 	{
 		/* Rendering */
 		// Clear
-		glClearColor(0.07f, 0.13f, 0.17f, 1.0f);
+		glClearColor(clearColorArray[0], clearColorArray[1], clearColorArray[2], clearColorArray[3]);
 		glClear(GL_COLOR_BUFFER_BIT);
 		// Triangle
 		StartShader(triangleShader);
