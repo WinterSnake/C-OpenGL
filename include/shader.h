@@ -16,6 +16,7 @@ typedef struct Shader
 } Shader;
 
 struct Shader CreateShader(const char*, const char*);
+struct Shader CreateShaderFromFile(const char*, const char*);
 void StartShader(struct Shader);
 void DeleteShader(struct Shader);
 

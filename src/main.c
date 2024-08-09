@@ -72,22 +72,9 @@ int main(int argc, const char** argv)
 	float clearColorArray[4];
 	struct Color clearColor = { .R = 0x17, .G = 0x26, .B = 0x4A, .A = 0xFF };
 	NormalizeColor(clearColor, clearColorArray);
-	printf("%f, %f, %f, %f\n", clearColorArray[0], clearColorArray[1], clearColorArray[2], clearColorArray[3]);
 
 	// OpenGL: Shader
-	const char* vertexShaderSource =
-	"#version 450 core\n"
-	"in vec4 position;\n"
-	"void main() {\n"
-	"\tgl_Position = position;\n"
-	"}\n";
-	const char* fragmentShaderSource =
-	"#version 450 core\n"
-	"out vec4 color;\n"
-	"void main() {\n"
-	"\tcolor = vec4(1.0f, 0.0f, 0.0f, 1.0f);\n"
-	"}\n";
-	struct Shader triangleShader = CreateShader(vertexShaderSource, fragmentShaderSource);
+	struct Shader triangleShader = CreateShaderFromFile("./shaders/triangle.vert", "./shaders/triangle.frag");
 	printf("Created new shader with Id: %u\n", triangleShader.Id);
 	StartShader(triangleShader);
 
