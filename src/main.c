@@ -13,18 +13,6 @@
 
 #include "opengl.h"
 
-const char* vertexShaderSource = "#version 450 core\n"
-"layout (location = 0) in vec3 aPos;\n"
-"void main()\n"
-"{\n"
-"   gl_Position = vec4(aPos.x, aPos.y, aPos.z, 1.0);\n"
-"}\0";
-const char* fragmentShaderSource = "#version 450 core\n"
-"out vec4 FragColor;\n"
-"void main()\n"
-"{\n"
-"   FragColor = vec4(0.8f, 0.3f, 0.02f, 1.0f);\n"
-"}\n\0";
 
 int main(int argc, const char** argv)
 {
@@ -59,38 +47,49 @@ int main(int argc, const char** argv)
 	// GLFW: OpenGL
 	glfwMakeContextCurrent(window);
 	gladLoadGLLoader((GLADloadproc)glfwGetProcAddress);
-
 	printf("%s\n", glGetString(GL_VERSION));
-
-	// OpenGL: Shader
-	struct Shader triangleShader = CreateShader(vertexShaderSource, fragmentShaderSource);
-	printf("Created new shader with Id: %u\n", triangleShader.Id);
-
 
 	// OpenGL: Buffers
 	GLfloat vertices[] =
 	{
-		-0.5f, -0.5f, 0.0f,
-		 0.5f, -0.5f, 0.0f,
-		 0.0f,  0.5f, 0.0f,
+		-0.5f, -0.5f,
+		 0.5f, -0.5f,
+		 0.0f,  0.5f,
 	};
 
 	GLuint VAO, VBO;
-
 	glGenVertexArrays(1, &VAO);
 	glGenBuffers(1, &VBO);
 	glBindVertexArray(VAO);
 	glBindBuffer(GL_ARRAY_BUFFER, VBO);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
+	glBufferData(GL_ARRAY_BUFFER, 6 * sizeof(float), vertices, GL_STATIC_DRAW);
+	glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 2 * sizeof(float), NULL);
 	glEnableVertexAttribArray(0);
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
 	glBindVertexArray(0);
 
+	// OpenGL: Color
 	float clearColorArray[4];
 	struct Color clearColor = { .R = 0x17, .G = 0x26, .B = 0x4A, .A = 0xFF };
 	NormalizeColor(clearColor, clearColorArray);
 	printf("%f, %f, %f, %f\n", clearColorArray[0], clearColorArray[1], clearColorArray[2], clearColorArray[3]);
+
+	// OpenGL: Shader
+	const char* vertexShaderSource =
+	"#version 450 core\n"
+	"in vec4 position;\n"
+	"void main() {\n"
+	"\tgl_Position = position;\n"
+	"}\n";
+	const char* fragmentShaderSource =
+	"#version 450 core\n"
+	"out vec4 color;\n"
+	"void main() {\n"
+	"\tcolor = vec4(1.0f, 0.0f, 0.0f, 1.0f);\n"
+	"}\n";
+	struct Shader triangleShader = CreateShader(vertexShaderSource, fragmentShaderSource);
+	printf("Created new shader with Id: %u\n", triangleShader.Id);
+	StartShader(triangleShader);
 
 	// GLFW: Loop
 	while (!glfwWindowShouldClose(window))
@@ -100,7 +99,6 @@ int main(int argc, const char** argv)
 		glClearColor(clearColorArray[0], clearColorArray[1], clearColorArray[2], clearColorArray[3]);
 		glClear(GL_COLOR_BUFFER_BIT);
 		// Triangle
-		StartShader(triangleShader);
 		glBindVertexArray(VAO);
 		glDrawArrays(GL_TRIANGLES, 0, 3);
 		// Swap Buffer

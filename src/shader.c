@@ -9,28 +9,32 @@
 
 #include "shader.h"
 
+static GLuint CompileOpenGLShader(GLenum type, const char* source)
+{
+	// TODO: Handle errors
+	GLuint shaderId = glCreateShader(type);
+	glShaderSource(shaderId, 1, &source, NULL);
+	glCompileShader(shaderId);
+	return shaderId;
+}
+
 Shader CreateShader(const char* vertexSource, const char* fragmentSource)
 {
 	// TODO: Handle errors
-	// Generate vertex shader
-	GLuint vertexShader = glCreateShader(GL_VERTEX_SHADER);
-	glShaderSource(vertexShader, 1, &vertexSource, NULL);
-	glCompileShader(vertexShader);
-	// Generate fragment shader
-	GLuint fragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
-	glShaderSource(fragmentShader, 1, &fragmentSource, NULL);
-	glCompileShader(fragmentShader);
-	// Create program and return Id
-	GLuint shaderProgram = glCreateProgram();
-	glAttachShader(shaderProgram, vertexShader);
-	glAttachShader(shaderProgram, fragmentShader);
-	glLinkProgram(shaderProgram);
+	GLuint shaderId   = glCreateProgram();
+	GLuint vertexId   = CompileOpenGLShader(GL_VERTEX_SHADER,   vertexSource);
+	GLuint fragmentId = CompileOpenGLShader(GL_FRAGMENT_SHADER, fragmentSource);
+	// Create program
+	glAttachShader(shaderId, vertexId);
+	glAttachShader(shaderId, fragmentId);
+	glLinkProgram(shaderId);
+	glValidateProgram(shaderId);
 	// Cleanup shaders
-	glDeleteShader(vertexShader);
-	glDeleteShader(fragmentShader);
-	// Construct shader object
+	glDeleteShader(vertexId);
+	glDeleteShader(fragmentId);
+	// Construct and return shader object
 	return (struct Shader){
-		.Id = shaderProgram
+		.Id = shaderId
 	};
 }
 
