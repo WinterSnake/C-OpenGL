@@ -49,24 +49,33 @@ int main(int argc, const char** argv)
 	gladLoadGLLoader((GLADloadproc)glfwGetProcAddress);
 	printf("%s\n", glGetString(GL_VERSION));
 
-	// OpenGL: Buffers
-	GLfloat vertices[] =
-	{
+	GLfloat vertices[] = {
 		-0.5f, -0.5f,
 		 0.5f, -0.5f,
-		 0.0f,  0.5f,
+		 0.5f,  0.5f,
+		-0.5f,  0.5f,
+	};
+	GLuint indicies[] = {
+		0, 1, 2,
+		2, 3, 0,
 	};
 
-	GLuint VAO, VBO;
-	glGenVertexArrays(1, &VAO);
-	glGenBuffers(1, &VBO);
-	glBindVertexArray(VAO);
-	glBindBuffer(GL_ARRAY_BUFFER, VBO);
-	glBufferData(GL_ARRAY_BUFFER, 6 * sizeof(float), vertices, GL_STATIC_DRAW);
+	// OpenGL: Buffers
+	GLuint vao, vbo, ibo;
+
+	/// Vertex [VAO]
+	glGenVertexArrays(1, &vao);
+	glBindVertexArray(vao);
+	/// Verticies [VBO]
+	glGenBuffers(1, &vbo);
+	glBindBuffer(GL_ARRAY_BUFFER, vbo);
+	glBufferData(GL_ARRAY_BUFFER, 6 * 2 * sizeof(float), vertices, GL_STATIC_DRAW);
 	glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 2 * sizeof(float), NULL);
 	glEnableVertexAttribArray(0);
-	glBindBuffer(GL_ARRAY_BUFFER, 0);
-	glBindVertexArray(0);
+	/// Indexes [IBO]
+	glGenBuffers(1, &ibo);
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibo);
+	glBufferData(GL_ELEMENT_ARRAY_BUFFER, 6 * sizeof(GLuint), indicies, GL_STATIC_DRAW);
 
 	// OpenGL: Color
 	float clearColorArray[4];
@@ -85,9 +94,8 @@ int main(int argc, const char** argv)
 		// Clear
 		glClearColor(clearColorArray[0], clearColorArray[1], clearColorArray[2], clearColorArray[3]);
 		glClear(GL_COLOR_BUFFER_BIT);
-		// Triangle
-		glBindVertexArray(VAO);
-		glDrawArrays(GL_TRIANGLES, 0, 3);
+		// Square
+		glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, NULL);
 		// Swap Buffer
 		glfwSwapBuffers(window);
 		/* Events */
@@ -98,8 +106,8 @@ int main(int argc, const char** argv)
 	}
 
 	// OpenGL: Cleanup
-	glDeleteVertexArrays(1, &VAO);
-	glDeleteBuffers(1, &VBO);
+	glDeleteVertexArrays(1, &vao);
+	glDeleteBuffers(1, &vbo);
 	DeleteShader(triangleShader);
 
 	// GLFW: Close

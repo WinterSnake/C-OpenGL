@@ -14,7 +14,6 @@
 
 static GLuint CompileOpenGLShader(GLenum type, const char* source)
 {
-	// TODO: Handle errors
 	GLuint shaderId = glCreateShader(type);
 	glShaderSource(shaderId, 1, &source, NULL);
 	glCompileShader(shaderId);
