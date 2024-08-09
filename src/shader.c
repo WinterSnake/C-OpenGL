@@ -23,11 +23,10 @@ static GLuint CompileOpenGLShader(GLenum type, const char* source)
 	{
 		GLint length;
 		glGetShaderiv(shaderId, GL_INFO_LOG_LENGTH, &length);
-		char* message = malloc(length * sizeof(char));
+		char* message = (char*)alloca(length * sizeof(char));
 		glGetShaderInfoLog(shaderId, length, &length, message);
 		message[length + 1] = 0;
 		fprintf(stderr, "Unable to compile shader: '%s'.\n", message);
-		free(message);
 		return 0;
 	}
 	return shaderId;
