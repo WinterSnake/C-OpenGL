@@ -13,6 +13,12 @@
 
 #include "opengl.h"
 
+void FramebufferSizeCallback(GLFWwindow* window, int width, int height)
+{
+	(void)window;
+	printf("New size: (%i, %i)\n", width, height);
+	glViewport(0, 0, width, height);
+}
 
 int main(int argc, const char** argv)
 {
@@ -34,6 +40,8 @@ int main(int argc, const char** argv)
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 5);
 	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 	glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GLFW_TRUE);
+	glfwWindowHint(GLFW_RESIZABLE, GLFW_TRUE);
+	glfwWindowHint(GLFW_FLOATING, GLFW_TRUE);
 
 	// GLFW: Create Window
 	GLFWwindow* window = glfwCreateWindow(WIDTH, HEIGHT, "OpenGL", NULL, NULL);
@@ -44,20 +52,24 @@ int main(int argc, const char** argv)
 		return 1;
 	}
 
+	glfwSetFramebufferSizeCallback(window, FramebufferSizeCallback);
+
 	// GLFW: OpenGL
 	glfwMakeContextCurrent(window);
 	gladLoadGLLoader((GLADloadproc)glfwGetProcAddress);
 	printf("%s\n", glGetString(GL_VERSION));
 
+	glViewport(0, 0, WIDTH, HEIGHT);
+
 	GLfloat vertices[] = {
-		-0.5f, -0.5f,
-		 0.5f, -0.5f,
 		 0.5f,  0.5f,
+		 0.5f, -0.5f,
+		-0.5f, -0.5f,
 		-0.5f,  0.5f,
 	};
 	GLuint indicies[] = {
-		0, 1, 2,
-		2, 3, 0,
+		0, 1, 3,
+		1, 2, 3,
 	};
 
 	// OpenGL: Buffers
@@ -82,7 +94,7 @@ int main(int argc, const char** argv)
 	struct Color clearColor = { .R = 0x17, .G = 0x26, .B = 0x4A, .A = 0xFF };
 	NormalizeColor(clearColor, clearColorArray);
 	float rectColorArray[4];
-	struct Color rectColor  = { .R = 0xFF, .G = 0x14, .B = 0x5F, .A = 0xFF };
+	struct Color rectColor  = { .R = 0x00, .G = 0x00, .B = 0x00, .A = 0xFF };
 
 	// OpenGL: Shader
 	struct Shader rectShader = ShaderCreateFromFile("./shaders/basic.vert", "./shaders/basic.frag");
