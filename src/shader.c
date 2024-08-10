@@ -12,7 +12,7 @@
 
 #include "shader.h"
 
-static GLuint CompileOpenGLShader(GLenum type, const char* source)
+static GLuint ShaderCompile(GLenum type, const char* source)
 {
 	GLuint shaderId = glCreateShader(type);
 	glShaderSource(shaderId, 1, &source, NULL);
@@ -32,7 +32,7 @@ static GLuint CompileOpenGLShader(GLenum type, const char* source)
 	return shaderId;
 }
 
-static char* ReadOpenGLShaderFile(const char* filePath)
+static char* ShaderReadFromFile(const char* filePath)
 {
 	FILE* fp = fopen(filePath, "r");
 	if (fp == NULL)
@@ -56,13 +56,13 @@ static char* ReadOpenGLShaderFile(const char* filePath)
 	return contents;
 }
 
-Shader CreateShader(const char* vertSource, const char* fragSource)
+Shader ShaderCreate(const char* vertSource, const char* fragSource)
 {
 	// TODO: Handle errors
-	GLuint prgmId = glCreateProgram();
-	GLuint vertId = CompileOpenGLShader(GL_VERTEX_SHADER,   vertSource);
-	GLuint fragId = CompileOpenGLShader(GL_FRAGMENT_SHADER, fragSource);
+	GLuint vertId = ShaderCompile(GL_VERTEX_SHADER,   vertSource);
+	GLuint fragId = ShaderCompile(GL_FRAGMENT_SHADER, fragSource);
 	// Create program
+	GLuint prgmId = glCreateProgram();
 	glAttachShader(prgmId, vertId);
 	glAttachShader(prgmId, fragId);
 	glLinkProgram(prgmId);
@@ -74,29 +74,29 @@ Shader CreateShader(const char* vertSource, const char* fragSource)
 	return (struct Shader) { .Id = prgmId };
 }
 
-struct Shader CreateShaderFromFile(const char* vertFile, const char* fragFile)
+struct Shader ShaderCreateFromFile(const char* vertFile, const char* fragFile)
 {
-	char* vertSource = ReadOpenGLShaderFile(vertFile);
+	char* vertSource = ShaderReadFromFile(vertFile);
 	if (vertSource == NULL)
 		return (struct Shader) { .Id = 0 };
-	char* fragSource = ReadOpenGLShaderFile(fragFile);
+	char* fragSource = ShaderReadFromFile(fragFile);
 	if (fragSource == NULL)
 	{
 		free(vertSource);
 		return (struct Shader) { .Id = 0 };
 	}
-	struct Shader shader = CreateShader(vertSource, fragSource);
+	struct Shader shader = ShaderCreate(vertSource, fragSource);
 	free(vertSource);
 	free(fragSource);
 	return shader;
 }
 
-void StartShader(struct Shader shader)
+void ShaderStart(struct Shader shader)
 {
 	glUseProgram(shader.Id);
 }
 
-void DeleteShader(struct Shader shader)
+void ShaderDelete(struct Shader shader)
 {
 	glDeleteProgram(shader.Id);
 }

@@ -15,9 +15,9 @@ typedef struct Shader
 	unsigned int Id;
 } Shader;
 
-struct Shader CreateShader(const char*, const char*);
-struct Shader CreateShaderFromFile(const char*, const char*);
-void StartShader(struct Shader);
-void DeleteShader(struct Shader);
+struct Shader ShaderCreate(const char*, const char*);
+struct Shader ShaderCreateFromFile(const char*, const char*);
+void ShaderStart(struct Shader);
+void ShaderDelete(struct Shader);
 
 #endif

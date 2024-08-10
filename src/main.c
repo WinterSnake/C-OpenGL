@@ -81,11 +81,15 @@ int main(int argc, const char** argv)
 	float clearColorArray[4];
 	struct Color clearColor = { .R = 0x17, .G = 0x26, .B = 0x4A, .A = 0xFF };
 	NormalizeColor(clearColor, clearColorArray);
+	float rectColorArray[4];
+	struct Color rectColor  = { .R = 0xFF, .G = 0x14, .B = 0x5F, .A = 0xFF };
 
 	// OpenGL: Shader
-	struct Shader triangleShader = CreateShaderFromFile("./shaders/triangle.vert", "./shaders/triangle.frag");
-	printf("Created new shader with Id: %u\n", triangleShader.Id);
-	StartShader(triangleShader);
+	struct Shader rectShader = ShaderCreateFromFile("./shaders/basic.vert", "./shaders/basic.frag");
+	printf("Created new shader with Id: %u\n", rectShader.Id);
+	ShaderStart(rectShader);
+
+	GLint location = glGetUniformLocation(rectShader.Id, "uColor");
 
 	// GLFW: Loop
 	while (!glfwWindowShouldClose(window))
@@ -94,7 +98,12 @@ int main(int argc, const char** argv)
 		// Clear
 		glClearColor(clearColorArray[0], clearColorArray[1], clearColorArray[2], clearColorArray[3]);
 		glClear(GL_COLOR_BUFFER_BIT);
-		// Square
+		// Color + Draw Rect
+		rectColor.R -= 1;
+		rectColor.G += 1;
+		rectColor.B += 5;
+		NormalizeColor(rectColor, rectColorArray);
+		glUniform4f(location, rectColorArray[0], rectColorArray[1], rectColorArray[2], rectColorArray[3]);
 		glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, NULL);
 		// Swap Buffer
 		glfwSwapBuffers(window);
@@ -108,7 +117,7 @@ int main(int argc, const char** argv)
 	// OpenGL: Cleanup
 	glDeleteVertexArrays(1, &vao);
 	glDeleteBuffers(1, &vbo);
-	DeleteShader(triangleShader);
+	ShaderDelete(rectShader);
 
 	// GLFW: Close
 	glfwDestroyWindow(window);
