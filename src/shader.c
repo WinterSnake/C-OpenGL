@@ -116,12 +116,5 @@ struct Shader ShaderCreateFromFile(const char* vertFile, const char* fragFile)
 	return shader;
 }
 
-void ShaderStart(struct Shader shader)
-{
-	glUseProgram(shader.Id);
-}
-
-void ShaderDelete(struct Shader shader)
-{
-	glDeleteProgram(shader.Id);
-}
+void ShaderStart(struct Shader shader) { glUseProgram(shader.Id); }
+void ShaderDelete(struct Shader shader) { glDeleteProgram(shader.Id); }

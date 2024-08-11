@@ -6,9 +6,11 @@ in vec2 vertTextureCoords;
 out vec4 fragColor;
 out vec2 fragTextureCoords;
 
+uniform mat4 transform;
+
 void main()
 {
-	gl_Position = position;
+	gl_Position = transform * position;
 	fragColor = vertColor;
 	fragTextureCoords = vertTextureCoords;
 }

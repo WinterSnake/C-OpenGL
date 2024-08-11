@@ -126,7 +126,6 @@ int main(int argc, const char** argv)
 	struct Color clearColor = { .R = 0x17, .G = 0x26, .B = 0x4A, .A = 0xFF };
 	NormalizeColor(clearColor, clearColorArray);
 
-
 	// GLFW: Loop
 	while (!glfwWindowShouldClose(window))
 	{
