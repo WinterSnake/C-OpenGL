@@ -58,7 +58,7 @@ static char* ShaderReadFromFile(const char* filePath)
 
 Shader ShaderCreate(const char* vertSource, const char* fragSource)
 {
-	// TODO: Handle errors
+	struct Shader shader;
 	GLuint vertId = ShaderCompile(GL_VERTEX_SHADER,   vertSource);
 	GLuint fragId = ShaderCompile(GL_FRAGMENT_SHADER, fragSource);
 	// Create program
@@ -66,12 +66,37 @@ Shader ShaderCreate(const char* vertSource, const char* fragSource)
 	glAttachShader(prgmId, vertId);
 	glAttachShader(prgmId, fragId);
 	glLinkProgram(prgmId);
+	GLint result;
+	glGetProgramiv(prgmId, GL_LINK_STATUS, &result);
+	if (result == GL_FALSE)
+	{
+		GLint length;
+		glGetProgramiv(prgmId, GL_INFO_LOG_LENGTH, &length);
+		char* message = (char*)alloca(length * sizeof(char));
+		glGetProgramInfoLog(prgmId, length, &length, message);
+		message[length + 1] = 0;
+		fprintf(stderr, "Unable to link program: '%s'.\n", message);
+		shader.Id = 0;
+		return shader;
+	}
 	glValidateProgram(prgmId);
+	glGetProgramiv(prgmId, GL_VALIDATE_STATUS, &result);
+	if (result == GL_FALSE)
+	{
+		GLint length;
+		glGetProgramiv(prgmId, GL_INFO_LOG_LENGTH, &length);
+		char* message = (char*)alloca(length * sizeof(char));
+		glGetProgramInfoLog(prgmId, length, &length, message);
+		message[length + 1] = 0;
+		fprintf(stderr, "Unable to validate program: '%s'.\n", message);
+		shader.Id = 0;
+		return shader;
+	}
 	// Cleanup shaders
 	glDeleteShader(vertId);
 	glDeleteShader(fragId);
-	// Construct and return shader object
-	return (struct Shader) { .Id = prgmId };
+	shader.Id = prgmId;
+	return shader;
 }
 
 struct Shader ShaderCreateFromFile(const char* vertFile, const char* fragFile)
