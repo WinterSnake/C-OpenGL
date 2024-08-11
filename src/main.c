@@ -62,49 +62,70 @@ int main(int argc, const char** argv)
 	gladLoadGLLoader((GLADloadproc)glfwGetProcAddress);
 	printf("%s\n", glGetString(GL_VERSION));
 
+	// Image
+	int width, height, channels;
+	const char* file = "./assets/wall.jpg";
+	uint8_t* data = stbi_load(file, &width, &height, &channels, 0);
+	if (data == NULL)
+	{
+		fprintf(stderr, "Failed to load image from '%s'.\n", file);
+		return 1;
+	}
+	printf("Image loaded: (%i, %i)[Channels: %i] Valid == %s\n", width, height, channels, data != NULL ? "true" : "false");
+
 	glViewport(0, 0, WIDTH, HEIGHT);
 
+
+	// OpenGL: Shader
+	struct Shader rectShader = ShaderCreateFromFile("./shaders/basic.vert", "./shaders/basic.frag");
+	printf("Created new shader with Id: %u\n", rectShader.Id);
+
+	// OpenGL: Buffers
 	GLfloat vertices[] = {
-		 0.5f,  0.5f,
-		 0.5f, -0.5f,
-		-0.5f, -0.5f,
-		-0.5f,  0.5f,
+		// Position(vec4)       ||Color(vec4)           ||Texture Coord(vec2)
+		 0.5f,  0.5f, 0.0f, 1.0f, 1.0f, 0.0f, 0.0f, 1.0f, 1.0f, 1.0f,
+		 0.5f, -0.5f, 0.0f, 1.0f, 0.0f, 1.0f, 0.0f, 1.0f, 1.0f, 0.0f,
+		-0.5f, -0.5f, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f, 1.0f, 0.0f, 0.0f,
+		-0.5f,  0.5f, 0.0f, 1.0f, 1.0f, 1.0f, 0.0f, 1.0f, 0.0f, 1.0f,
 	};
 	GLuint indicies[] = {
 		0, 1, 3,
 		1, 2, 3,
 	};
 
-	// OpenGL: Buffers
-	GLuint vao, vbo, ibo;
-
+	GLuint vao, vbo, ebo, texture;
 	/// Vertex [VAO]
 	glGenVertexArrays(1, &vao);
 	glBindVertexArray(vao);
 	/// Verticies [VBO]
 	glGenBuffers(1, &vbo);
 	glBindBuffer(GL_ARRAY_BUFFER, vbo);
-	glBufferData(GL_ARRAY_BUFFER, 6 * 2 * sizeof(float), vertices, GL_STATIC_DRAW);
-	glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 2 * sizeof(float), NULL);
+	glBufferData(GL_ARRAY_BUFFER, (4 + 4 + 2) * 4 * sizeof(float), vertices, GL_STATIC_DRAW);
+	// [Position]
+	glVertexAttribPointer(0, 4, GL_FLOAT, GL_FALSE, 10 * sizeof(float), (void*)(0 * sizeof(float)));
 	glEnableVertexAttribArray(0);
-	/// Indexes [IBO]
-	glGenBuffers(1, &ibo);
-	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibo);
+	// [Color]
+	glVertexAttribPointer(1, 4, GL_FLOAT, GL_FALSE, 10 * sizeof(float), (void*)(4 * sizeof(float)));
+	glEnableVertexAttribArray(1);
+	// [Texture Coord]
+	glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 10 * sizeof(float), (void*)(8 * sizeof(float)));
+	glEnableVertexAttribArray(2);
+	/// Indexes [EBO]
+	glGenBuffers(1, &ebo);
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ebo);
 	glBufferData(GL_ELEMENT_ARRAY_BUFFER, 6 * sizeof(GLuint), indicies, GL_STATIC_DRAW);
+	/// Texture
+	glGenTextures(1, &texture);
+	glBindTexture(GL_TEXTURE_2D, texture);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
+	glGenerateMipmap(GL_TEXTURE_2D);
+	stbi_image_free(data);
 
 	// OpenGL: Color
 	float clearColorArray[4];
 	struct Color clearColor = { .R = 0x17, .G = 0x26, .B = 0x4A, .A = 0xFF };
 	NormalizeColor(clearColor, clearColorArray);
-	float rectColorArray[4];
-	struct Color rectColor  = { .R = 0x00, .G = 0x00, .B = 0x00, .A = 0xFF };
 
-	// OpenGL: Shader
-	struct Shader rectShader = ShaderCreateFromFile("./shaders/basic.vert", "./shaders/basic.frag");
-	printf("Created new shader with Id: %u\n", rectShader.Id);
-	ShaderStart(rectShader);
-
-	GLint location = glGetUniformLocation(rectShader.Id, "uColor");
 
 	// GLFW: Loop
 	while (!glfwWindowShouldClose(window))
@@ -114,11 +135,7 @@ int main(int argc, const char** argv)
 		glClearColor(clearColorArray[0], clearColorArray[1], clearColorArray[2], clearColorArray[3]);
 		glClear(GL_COLOR_BUFFER_BIT);
 		// Color + Draw Rect
-		rectColor.R -= 1;
-		rectColor.G += 1;
-		rectColor.B += 5;
-		NormalizeColor(rectColor, rectColorArray);
-		glUniform4f(location, rectColorArray[0], rectColorArray[1], rectColorArray[2], rectColorArray[3]);
+		ShaderStart(rectShader);
 		glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, NULL);
 		// Swap Buffer
 		glfwSwapBuffers(window);
